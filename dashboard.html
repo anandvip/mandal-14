@@ -1032,6 +1032,17 @@
                 showToast('Please enter your feedback before submitting.');
             }
         }
+        // Add this to your dashboard.html
+firebase.auth().onAuthStateChanged((user) => {
+    if (!user) {
+        // If no user is signed in, redirect to the login page
+        window.location.href = 'https://anandvip.github.io/mandal-14/index.html';
+    } else {
+        // User is signed in, you can now load the dashboard content
+        console.log('User is authenticated:', user.email);
+        // Load dashboard content here
+    }
+});
 
         // Initialize the application
         initializeApp();
