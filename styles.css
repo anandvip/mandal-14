@@ -37,7 +37,7 @@ header {
 .logo {
     width: 52px;
     height: 52px;
-    background-image: url('/mandal 2.png'); /* Update this path */
+    background-image: url('https://github.com/anandvip/mandal-14/blob/main/logo%20mandala%202.png?raw=true'); /* Update this path */
     background-size: cover;
     background-position: center;
 }
