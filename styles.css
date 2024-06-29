@@ -133,6 +133,9 @@ footer {
     padding: 20px;
     background-color: var(--secondary-color);
     margin-top: 40px;
+    postiion:absoloute;
+    botton:0;
+    width:-webkit-fill-available;
 }
 
 /* Responsive design */
