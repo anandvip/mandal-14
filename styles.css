@@ -1,0 +1,161 @@
+/* Base styles */
+:root {
+    --primary-color: #4a90e2;
+    --secondary-color: #f3f3f3;
+    --text-color: #333;
+    --background-color: #ffffff;
+}
+
+body {
+    font-family: Arial, sans-serif;
+    line-height: 1.6;
+    color: var(--text-color);
+    background-color: var(--background-color);
+    margin: 0;
+    padding: 0;
+}
+
+/* Header styles */
+header {
+    background-color: var(--secondary-color);
+    padding: 10px 0;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+}
+
+.header-content {
+    display: flex;
+    align-items: center;
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 0 20px;
+}
+
+.logo-container {
+    margin-right: 20px;
+}
+
+.logo {
+    width: 52px;
+    height: 52px;
+    background-image: url('path/to/your/logo-image.png'); /* Update this path */
+    background-size: cover;
+    background-position: center;
+}
+
+.title-container {
+    flex-grow: 1;
+}
+
+h1 {
+    margin: 0;
+    font-size: 24px;
+    color: var(--text-color);
+}
+
+.tagline {
+    margin: 0;
+    font-size: 14px;
+    color: #666;
+}
+
+nav {
+    display: flex;
+    gap: 10px;
+}
+
+/* Main content styles */
+main {
+    max-width: 800px;
+    margin: 20px auto;
+    padding: 0 20px;
+}
+
+section {
+    margin-bottom: 30px;
+}
+
+h2 {
+    color: var(--primary-color);
+}
+
+/* Form styles */
+input, button {
+    display: block;
+    width: 100%;
+    padding: 10px;
+    margin-bottom: 10px;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+}
+
+button {
+    background-color: var(--primary-color);
+    color: white;
+    border: none;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+}
+
+button:hover {
+    background-color: #357ae8;
+}
+
+/* Dashboard styles */
+#activeMandal {
+    background-color: var(--secondary-color);
+    padding: 20px;
+    border-radius: 4px;
+    margin-bottom: 20px;
+}
+
+#timer {
+    font-size: 2em;
+    text-align: center;
+    margin: 20px 0;
+}
+
+/* Session history styles */
+#sessionList {
+    list-style-type: none;
+    padding: 0;
+}
+
+#sessionList li {
+    background-color: var(--secondary-color);
+    margin-bottom: 10px;
+    padding: 10px;
+    border-radius: 4px;
+}
+
+/* Footer styles */
+footer {
+    text-align: center;
+    padding: 20px;
+    background-color: var(--secondary-color);
+    margin-top: 40px;
+}
+
+/* Responsive design */
+@media (max-width: 600px) {
+    .header-content {
+        flex-direction: column;
+        text-align: center;
+    }
+
+    .logo-container {
+        margin-right: 0;
+        margin-bottom: 10px;
+    }
+
+    nav {
+        margin-top: 10px;
+    }
+}
+
+/* Dark mode (optional) */
+.dark-mode {
+    --primary-color: #6ab0ff;
+    --secondary-color: #2c2c2c;
+    --text-color: #f3f3f3;
+    --background-color: #1a1a1a;
+}
