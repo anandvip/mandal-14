@@ -1,0 +1,1040 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Enhanced Meditation Tracker</title>
+    <style>
+        :root {
+            --primary-color: #4a90e2;
+            --secondary-color: #f39c12;
+            --tertiary-color: #2ecc71;
+            --danger-color: #e74c3c;
+            --bg-color: #f4f4f4;
+            --text-color: #333;
+            --card-bg: #fff;
+            --card-shadow: 0 2px 5px rgba(0,0,0,0.1);
+        }
+
+        body {
+            font-family: 'Arial', sans-serif;
+            line-height: 1.6;
+            color: var(--text-color);
+            background-color: var(--bg-color);
+            margin: 0;
+            padding: 20px;
+            transition: all 0.3s ease;
+        }
+
+        .container {
+            max-width: 1000px;
+            margin: 0 auto;
+        }
+
+        .card {
+            background-color: var(--card-bg);
+            border-radius: 8px;
+            padding: 20px;
+            margin-bottom: 20px;
+            box-shadow: var(--card-shadow);
+        }
+
+        h1, h2, h3, h4, h5, h6 {
+            color: var(--primary-color);
+        }
+
+        button {
+            background-color: var(--primary-color);
+            color: white;
+            border: none;
+            padding: 10px 15px;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: background-color 0.3s ease;
+        }
+
+        button:hover {
+            background-color: #357ae8;
+        }
+
+        button:disabled {
+            background-color: #aaa;
+            cursor: not-allowed;
+        }
+
+        input, select {
+            width: 100%;
+            padding: 10px;
+            margin: 10px 0;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            box-sizing: border-box;
+        }
+
+        #dashboard {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 20px;
+        }
+
+        .dashboard-item {
+            background-color: var(--card-bg);
+            padding: 15px;
+            border-radius: 8px;
+            box-shadow: var(--card-shadow);
+        }
+
+        #timer {
+            font-size: 2em;
+            text-align: center;
+            margin: 20px 0;
+        }
+
+        .session-entry {
+            margin-bottom: 15px;
+            padding: 10px;
+            background-color: #f9f9f9;
+            border-radius: 5px;
+            transition: background-color 0.3s ease;
+        }
+
+        .editable-notes {
+            min-height: 50px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            padding: 10px;
+            margin-top: 10px;
+        }
+
+        .dark-mode {
+            --bg-color: #333;
+            --text-color: #f4f4f4;
+            --card-bg: #444;
+            --card-shadow: 0 2px 5px rgba(255,255,255,0.1);
+        }
+
+        .dark-mode .session-entry {
+            background-color: #555;
+        }
+
+        #toastContainer {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            z-index: 1000;
+        }
+
+        .toast {
+            background-color: var(--primary-color);
+            color: white;
+            padding: 10px 20px;
+            border-radius: 5px;
+            margin-top: 10px;
+            opacity: 0;
+            transition: opacity 0.3s ease;
+        }
+
+        .toast.show {
+            opacity: 1;
+        }
+
+        .intrusive-toast {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background-color: var(--card-bg);
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: var(--card-shadow);
+            z-index: 1001;
+        }
+
+        .intrusive-toast p {
+            margin-bottom: 15px;
+        }
+
+        .intrusive-toast-buttons {
+            display: flex;
+            justify-content: flex-end;
+            gap: 10px;
+        }
+
+        .circular-progress {
+            width: 200px;
+            height: 200px;
+            position: relative;
+            margin: 0 auto;
+        }
+
+        .circular-progress svg {
+            width: 100%;
+            height: 100%;
+        }
+
+        .circular-progress-text {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            font-size: 24px;
+            font-weight: bold;
+            text-align: center;
+        }
+
+        .progress-label {
+            text-align: center;
+            margin-top: 10px;
+            font-weight: bold;
+        }
+
+        [contenteditable="true"] {
+            border-bottom: 1px dashed var(--primary-color);
+            padding: 2px 5px;
+        }
+
+        [contenteditable="true"]:focus {
+            outline: none;
+            border-bottom: 2px solid var(--primary-color);
+        }
+
+        .formatting-menu {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            margin-bottom: 10px;
+        }
+
+        .formatting-menu button {
+            font-size: 14px;
+            padding: 5px 10px;
+        }
+
+        .session-stats {
+            width: 250px;
+            height: 250px;
+        }
+        
+        .stats-details {
+            margin-top: 20px;
+            text-align: center;
+        }
+        
+        .motivation-message {
+            margin-top: 20px;
+            text-align: center;
+            font-style: italic;
+            color: var(--primary-color);
+        }
+
+        .danger-btn {
+            background-color: var(--danger-color);
+            margin-top: 10px;
+        }
+
+        .danger-btn:hover {
+            background-color: #c0392b;
+        }
+
+        .delete-note-btn {
+            background-color: var(--danger-color);
+            color: white;
+            border: none;
+            padding: 5px 10px;
+            border-radius: 3px;
+            cursor: pointer;
+            font-size: 12px;
+            margin-left: 10px;
+        }
+
+        .delete-note-btn:hover {
+            background-color: #c0392b;
+        }
+
+        .tooltip {
+            position: relative;
+            display: inline-block;
+            cursor: help;
+        }
+
+        .tooltip .tooltiptext {
+            visibility: hidden;
+            width: 200px;
+            background-color: #555;
+            color: #fff;
+            text-align: center;
+            border-radius: 6px;
+            padding: 5px;
+            position: absolute;
+            z-index: 1;
+            bottom: 125%;
+            left: 50%;
+            margin-left: -100px;
+            opacity: 0;
+            transition: opacity 0.3s;
+        }
+
+        .tooltip:hover .tooltiptext {
+            visibility: visible;
+            opacity: 1;
+        }
+
+        #feedbackForm {
+            display: none;
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background-color: var(--card-bg);
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: var(--card-shadow);
+            z-index: 1001;
+        }
+
+        #feedbackForm textarea {
+            width: 100%;
+            height: 100px;
+            margin-bottom: 10px;
+        }
+
+        .mandal-complete {
+            text-align: center;
+            padding: 20px;
+            background-color: var(--tertiary-color);
+            color: white;
+            border-radius: 8px;
+            margin-bottom: 20px;
+        }
+
+        .mandal-summary {
+            background-color: var(--card-bg);
+            padding: 20px;
+            border-radius: 8px;
+            margin-top: 20px;
+        }
+
+        .mandal-summary h3 {
+            color: var(--primary-color);
+        }
+
+        .mandal-summary ul {
+            list-style-type: none;
+            padding: 0;
+        }
+
+        .mandal-summary li {
+            margin-bottom: 10px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Enhanced Meditation Tracker</h1>
+        <h2>Namaskaram, <span id="userName" contenteditable="true">Your Name</span>!</h2>
+        <button id="themeToggle" class="tooltip">Toggle Dark Mode<span class="tooltiptext">Switch between light and dark themes</span></button>
+        <button id="feedbackBtn" class="tooltip">Give Feedback<span class="tooltiptext">Help us improve!</span></button>
+        
+        <div id="mandalCreation" class="card">
+            <h2>Create New Mandal</h2>
+            <input type="text" id="mandalName" placeholder="Mandal Name">
+            <select id="mandalDuration">
+                <option value="48">48 Days</option>
+                <option value="90">90 Days</option>
+            </select>
+            <input type="date" id="startDate">
+            <button id="createMandal" class="tooltip">Create Mandal<span class="tooltiptext">Start a new meditation Mandal</span></button>
+        </div>
+
+        <div id="activeMandalInfo" class="card" style="display: none;">
+            <h2>Active Mandal: <span id="activeMandalName" contenteditable="true"></span></h2>
+            <div id="dashboard">
+                <div class="dashboard-item">
+                    <h3>Mandal Progress</h3>
+                    <div class="circular-progress">
+                        <svg viewBox="0 0 100 100">
+                            <circle cx="50" cy="50" r="45" fill="none" stroke="#e0e0e0" stroke-width="10" />
+                            <circle id="progress-circle" cx="50" cy="50" r="45" fill="none" stroke="var(--primary-color)" stroke-width="10" stroke-dasharray="0 283" transform="rotate(-90 50 50)" />
+                        </svg>
+                        <div class="circular-progress-text" id="progress-text"></div>
+                    </div>
+                    <div class="progress-label" id="progress-label"></div>
+                    <p>Start Date: <span id="mandalStartDate"></span></p>
+                    <p>End Date: <span id="mandalEndDate"></span></p>
+                    <p>Days Remaining: <span id="daysRemaining"></span></p>
+                </div>
+                <div class="dashboard-item">
+                    <h3>Session Statistics</h3>
+                    <div class="circular-progress session-stats">
+                        <svg viewBox="0 0 100 100">
+                            <circle cx="50" cy="50" r="45" fill="none" stroke="#e0e0e0" stroke-width="10" />
+                            <circle id="total-sessions-circle" cx="50" cy="50" r="45" fill="none" stroke="var(--primary-color)" stroke-width="10" stroke-dasharray="0 283" transform="rotate(-90 50 50)" />
+                            <circle id="total-time-circle" cx="50" cy="50" r="35" fill="none" stroke="var(--secondary-color)" stroke-width="10" stroke-dasharray="0 220" transform="rotate(-90 50 50)" />
+                            <circle id="average-session-circle" cx="50" cy="50" r="25" fill="none" stroke="var(--tertiary-color)" stroke-width="10" stroke-dasharray="0 157" transform="rotate(-90 50 50)" />
+                        </svg>
+                        <div class="circular-progress-text" id="session-stats-text"></div>
+                    </div>
+                    <div class="stats-details">
+                        <p>Total Sessions: <span id="totalSessions"></span></p>
+                        <p>Total Time: <span id="totalTime"></span></p>
+                        <p>Average Session: <span id="averageSession"></span></p>
+                    </div>
+                    <div class="motivation-message" id="motivationMessage"></div>
+                </div>
+                <div class="dashboard-item">
+                    <h3>Current Session</h3>
+                    <div id="timer">00:00:00</div>
+                    <button id="startSession" class="tooltip">Start Session<span class="tooltiptext">Begin a new meditation session</span></button>
+                    <button id="stopSession" class="tooltip" style="display: none;">Stop Session<span class="tooltiptext">End the current meditation session</span></button>
+                </div>
+                <div class="dashboard-item">
+                    <h3>User Settings</h3>
+                    <h4>Export/Import Data</h4>
+                    <div>
+                        <input type="checkbox" id="exportNotes" checked>
+                        <label for="exportNotes">Export Notes (HTML & CSS)</label>
+                    </div>
+                    <div>
+                        <input type="checkbox" id="exportReadings" checked>
+                        <label for="exportReadings">Export Readings (JSON)</label>
+                    </div>
+                    <button id="exportDataBtn" class="tooltip">Export Data<span class="tooltiptext">Save your meditation data</span></button>
+                    <input type="file" id="importDataInput" accept=".json,.html" style="display: none;">
+                    <button id="importDataBtn" class="tooltip">Import Data<span class="tooltiptext">Load previously saved meditation data</span></button>
+                    <button id="deleteMandal" class="danger-btn tooltip">Delete Mandal<span class="tooltiptext">Remove the current Mandal and all its data</span></button>
+                </div>
+            </div>
+        </div>
+
+        <div id="sessionHistory" class="card" style="display: none;">
+            <h2>Session History <span class="tooltip">(<span id="sessionCount">0</span> sessions)<span class="tooltiptext">Total number of meditation sessions</span></span></h2>
+            <div id="historyContent"></div>
+        </div>
+
+        <div id="mandalComplete" class="mandal-complete" style="display: none;">
+            <h2>Congratulations! You've completed your Mandal!</h2>
+            <p>Here's a summary of your journey:</p>
+            <div class="mandal-summary">
+                <h3>Mandal Summary</h3>
+                <ul>
+                    <li>Total Sessions: <span id="summaryTotalSessions"></span></li>
+                    <li>Total Meditation Time: <span id="summaryTotalTime"></span>
+                      <li>Total Meditation Time: <span id="summaryTotalTime"></span></li>
+                    <li>Average Session Length: <span id="summaryAverageSession"></span></li>
+                    <li>Longest Streak: <span id="summaryLongestStreak"></span> days</li>
+                </ul>
+            </div>
+            <button id="startNewMandal">Start a New Mandal</button>
+            <button id="reviewProgress">Review Detailed Progress</button>
+        </div>
+    </div>
+
+    <div id="toastContainer"></div>
+
+    <div id="feedbackForm">
+        <h3>Give Feedback</h3>
+        <textarea id="feedbackText" placeholder="Your feedback helps us improve!"></textarea>
+        <button id="submitFeedback">Submit</button>
+        <button id="closeFeedback">Close</button>
+    </div>
+
+    <script>
+        // State
+        let state = {
+            activeMandal: null,
+            sessions: [],
+            timerInterval: null,
+            seconds: 0,
+            streaks: []
+        };
+
+        // DOM Elements
+        const elements = {
+            themeToggle: document.getElementById('themeToggle'),
+            mandalCreation: document.getElementById('mandalCreation'),
+            activeMandalInfo: document.getElementById('activeMandalInfo'),
+            sessionHistory: document.getElementById('sessionHistory'),
+            createMandalBtn: document.getElementById('createMandal'),
+            startSessionBtn: document.getElementById('startSession'),
+            stopSessionBtn: document.getElementById('stopSession'),
+            deleteMandalBtn: document.getElementById('deleteMandal'),
+            timerDisplay: document.getElementById('timer'),
+            historyContent: document.getElementById('historyContent'),
+            toastContainer: document.getElementById('toastContainer'),
+            progressCircle: document.getElementById('progress-circle'),
+            progressText: document.getElementById('progress-text'),
+            progressLabel: document.getElementById('progress-label'),
+            exportDataBtn: document.getElementById('exportDataBtn'),
+            importDataBtn: document.getElementById('importDataBtn'),
+            importDataInput: document.getElementById('importDataInput'),
+            userName: document.getElementById('userName'),
+            activeMandalName: document.getElementById('activeMandalName'),
+            sessionCount: document.getElementById('sessionCount'),
+            mandalStartDate: document.getElementById('mandalStartDate'),
+            mandalEndDate: document.getElementById('mandalEndDate'),
+            daysRemaining: document.getElementById('daysRemaining'),
+            feedbackBtn: document.getElementById('feedbackBtn'),
+            feedbackForm: document.getElementById('feedbackForm'),
+            submitFeedback: document.getElementById('submitFeedback'),
+            closeFeedback: document.getElementById('closeFeedback'),
+            mandalComplete: document.getElementById('mandalComplete'),
+            startNewMandal: document.getElementById('startNewMandal'),
+            reviewProgress: document.getElementById('reviewProgress')
+        };
+
+        // Event Listeners
+        document.addEventListener('DOMContentLoaded', initializeApp);
+        elements.themeToggle.addEventListener('click', toggleTheme);
+        elements.createMandalBtn.addEventListener('click', createMandal);
+        elements.startSessionBtn.addEventListener('click', startSession);
+        elements.stopSessionBtn.addEventListener('click', stopSession);
+        elements.deleteMandalBtn.addEventListener('click', () => showIntrusiveToast('Are you sure you want to delete this Mandal and all its sessions?', deleteMandal));
+        elements.exportDataBtn.addEventListener('click', exportData);
+        elements.importDataBtn.addEventListener('click', () => elements.importDataInput.click());
+        elements.importDataInput.addEventListener('change', importData);
+        elements.userName.addEventListener('blur', saveUserName);
+        elements.activeMandalName.addEventListener('blur', saveMandalName);
+        elements.feedbackBtn.addEventListener('click', showFeedbackForm);
+        elements.submitFeedback.addEventListener('click', submitFeedback);
+        elements.closeFeedback.addEventListener('click', hideFeedbackForm);
+        elements.startNewMandal.addEventListener('click', startNewMandal);
+        elements.reviewProgress.addEventListener('click', reviewDetailedProgress);
+
+        function initializeApp() {
+            loadStateFromLocalStorage();
+            updateTimerDisplay();
+            updateUI();
+            elements.userName.textContent = localStorage.getItem('meditationTrackerUserName') || 'Your Name';
+        }
+
+        function createMandal() {
+            const name = document.getElementById('mandalName').value;
+            const duration = parseInt(document.getElementById('mandalDuration').value);
+            const startDate = new Date(document.getElementById('startDate').value);
+            const endDate = new Date(startDate);
+            endDate.setDate(endDate.getDate() + duration);
+
+            state.activeMandal = { name, startDate, endDate, duration };
+            state.sessions = [];
+            state.streaks = [];
+            saveStateToLocalStorage();
+            updateUI();
+            showToast('Mandal created successfully!');
+        }
+
+        function startSession() {
+            state.seconds = 0;
+            state.timerInterval = setInterval(updateTimer, 1000);
+            elements.startSessionBtn.style.display = 'none';
+            elements.stopSessionBtn.style.display = 'inline-block';
+            showToast('Session started.');
+        }
+
+        function stopSession() {
+            clearInterval(state.timerInterval);
+            const sessionDate = new Date();
+            state.sessions.push({ date: sessionDate, duration: state.seconds, notes: '' });
+            updateStreaks(sessionDate);
+            saveStateToLocalStorage();
+            updateUI();
+            elements.startSessionBtn.style.display = 'inline-block';
+            elements.stopSessionBtn.style.display = 'none';
+            state.seconds = 0;
+            updateTimerDisplay();
+            showToast('Session stopped.');
+        }
+
+        function updateStreaks(sessionDate) {
+            if (state.streaks.length === 0 || daysBetween(state.streaks[state.streaks.length - 1].end, sessionDate) > 1) {
+                state.streaks.push({ start: sessionDate, end: sessionDate, length: 1 });
+            } else {
+                let currentStreak = state.streaks[state.streaks.length - 1];
+                currentStreak.end = sessionDate;
+                currentStreak.length = daysBetween(currentStreak.start, currentStreak.end) + 1;
+            }
+        }
+
+        function daysBetween(date1, date2) {
+            const oneDay = 24 * 60 * 60 * 1000;
+            return Math.round(Math.abs((date1 - date2) / oneDay));
+        }
+
+        function updateTimer() {
+            state.seconds++;
+            updateTimerDisplay();
+        }
+
+        function updateTimerDisplay() {
+            elements.timerDisplay.textContent = formatTime(state.seconds);
+        }
+
+        function formatTime(seconds) {
+            const hours = Math.floor(seconds / 3600);
+            const minutes = Math.floor((seconds % 3600) / 60);
+            const secs = seconds % 60;
+            return `${pad(hours)}:${pad(minutes)}:${pad(secs)}`;
+        }
+
+        function pad(num) {
+            return num.toString().padStart(2, '0');
+        }
+
+        function updateUI() {
+            if (state.activeMandal) {
+                elements.mandalCreation.style.display = 'none';
+                elements.activeMandalInfo.style.display = 'block';
+                elements.sessionHistory.style.display = 'block';
+                elements.mandalComplete.style.display = 'none';
+                updateDashboard();
+                displaySessionHistory();
+            } else {
+                elements.mandalCreation.style.display = 'block';
+                elements.activeMandalInfo.style.display = 'none';
+                elements.sessionHistory.style.display = 'none';
+                elements.mandalComplete.style.display = 'none';
+            }
+        }
+
+        function updateDashboard() {
+            const { activeMandal, sessions } = state;
+            elements.activeMandalName.textContent = activeMandal.name;
+            elements.mandalStartDate.textContent = formatDate(activeMandal.startDate);
+            elements.mandalEndDate.textContent = formatDate(activeMandal.endDate);
+            
+            const now = new Date();
+            const daysRemaining = Math.ceil((activeMandal.endDate - now) / (1000 * 60 * 60 * 24));
+            elements.daysRemaining.textContent = daysRemaining;
+
+            const progress = Math.min(100, Math.round(((activeMandal.duration - daysRemaining) / activeMandal.duration) * 100));
+            updateProgressCircle(progress);
+
+            const totalSessions = sessions.length;
+            const totalTime = sessions.reduce((sum, session) => sum + session.duration, 0);
+            const averageTime = totalSessions ? Math.round(totalTime / totalSessions) : 0;
+
+            document.getElementById('totalSessions').textContent = totalSessions;
+            document.getElementById('totalTime').textContent = formatTime(totalTime);
+            document.getElementById('averageSession').textContent = formatTime(averageTime);
+
+            updateSessionStatsProgress(totalSessions, totalTime, averageTime);
+            updateMotivationMessage(totalSessions, totalTime, averageTime);
+
+            checkMandalCompletion(progress, daysRemaining);
+        }
+
+        function updateProgressCircle(progress) {
+            const circumference = 2 * Math.PI * 45;
+            const offset = circumference - (progress / 100) * circumference;
+            elements.progressCircle.style.strokeDasharray = `${circumference} ${circumference}`;
+            elements.progressCircle.style.strokeDashoffset = offset;
+            elements.progressText.textContent = `${progress}%`;
+            elements.progressLabel.textContent = getProgressLabel(progress);
+        }
+
+        function getProgressLabel(progress) {
+            if (progress < 50) return "Mindset";
+            if (progress < 70) return "Deep processing";
+            return "Self regulation";
+        }
+
+        function updateSessionStatsProgress(totalSessions, totalTime, averageTime) {
+            const maxSessions = 30; // Adjust as needed
+            const maxTotalTime = 3600 * 10; // 10 hours
+            const maxAverageTime = 3600; // 1 hour
+
+            const sessionsProgress = Math.min(1, totalSessions / maxSessions) * 283;
+            const totalTimeProgress = Math.min(1, totalTime / maxTotalTime) * 220;
+            const averageTimeProgress = Math.min(1, averageTime / maxAverageTime) * 157;
+
+            document.getElementById('total-sessions-circle').style.strokeDasharray = `${sessionsProgress} 283`;
+            document.getElementById('total-time-circle').style.strokeDasharray = `${totalTimeProgress} 220`;
+            document.getElementById('average-session-circle').style.strokeDasharray = `${averageTimeProgress} 157`;
+
+            document.getElementById('session-stats-text').textContent = `${totalSessions}\nSessions`;
+        }
+
+        function updateMotivationMessage(totalSessions, totalTime, averageTime) {
+            const messages = [
+                "Great start! Keep up the good work!",
+                "You're building a wonderful habit. Stay consistent!",
+                "Every session counts. You're making progress!",
+                "Your dedication is inspiring. Keep going!",
+                "Mindfulness is a journey, and you're on the right path!"
+            ];
+
+            const messageIndex = Math.min(Math.floor(totalSessions / 5), messages.length - 1);
+            document.getElementById('motivationMessage').textContent = messages[messageIndex];
+        }
+
+        function displaySessionHistory() {
+            const { sessions } = state;
+            elements.sessionCount.textContent = sessions.length;
+            
+            if (sessions.length === 0) {
+                elements.historyContent.innerHTML = "<p>No meditation sessions recorded yet.</p>";
+            } else {
+                elements.historyContent.innerHTML = sessions.map((session, index) => `
+                    <div class="session-entry">
+                        <p>Session ${index + 1}: ${formatDate(session.date)} - ${formatTime(session.duration)}</p>
+                        <div class="formatting-menu">
+                            <button onclick="applyFormatting(${index}, 'h1')">H1</button>
+                            <button onclick="applyFormatting(${index}, 'h2')">H2</button>
+                            <button onclick="applyFormatting(${index}, 'h3')">H3</button>
+                            <button onclick="applyFormatting(${index}, 'h4')">H4</button>
+                            <button onclick="applyFormatting(${index}, 'h5')">H5</button>
+                            <button onclick="applyFormatting(${index}, 'h6')">H6</button>
+                            <button onclick="applyFormatting(${index}, 'p')">P</button>
+                            <button onclick="applyFormatting(${index}, 'bold')">Bold</button>
+                            <button onclick="applyFormatting(${index}, 'italic')">Italic</button>
+                            <button onclick="applyFormatting(${index}, 'underline')">Underline</button>
+                        </div>
+                        <div class="editable-notes" contenteditable="true" data-index="${index}">${session.notes || 'Click to add notes...'}</div>
+                        <button class="delete-note-btn" onclick="confirmDeleteNote(${index})">Delete Note</button>
+                    </div>
+                `).join('');
+
+                document.querySelectorAll('.editable-notes').forEach(noteElement => {
+                    noteElement.addEventListener('blur', saveNotes);
+                });
+            }
+        }
+
+        // Debounce function
+        function debounce(func, wait) {
+            let timeout;
+            return function executedFunction(...args) {
+                const later = () => {
+                    clearTimeout(timeout);
+                    func(...args);
+                };
+                clearTimeout(timeout);
+                timeout = setTimeout(later, wait);
+            };
+        }
+
+        const debouncedDeleteNote = debounce(deleteNote, 300);
+
+        function confirmDeleteNote(index) {
+            showIntrusiveToast('Are you sure you want to delete this note?', () => debouncedDeleteNote(index));
+        }
+
+        function deleteNote(index) {
+            state.sessions.splice(index, 1);
+            saveStateToLocalStorage();
+            displaySessionHistory();
+            showToast('Note deleted.');
+        }
+
+        function applyFormatting(index, style) {
+            if (['h1', 'h2', 'h3', 'h4', 'h5', 'h6', 'p'].includes(style)) {
+                document.execCommand('formatBlock', false, `<${style}>`);
+            } else {
+                document.execCommand(style, false, null);
+            }
+            saveNotes({ target: document.querySelector(`.editable-notes[data-index="${index}"]`) });
+        }
+
+        function saveNotes(event) {
+            const index = event.target.getAttribute('data-index');
+            state.sessions[index].notes = event.target.innerHTML;
+            saveStateToLocalStorage();
+            showToast('Notes saved.');
+        }
+
+        function checkMandalCompletion(progress, daysRemaining) {
+            if (progress >= 100 || daysRemaining <= 0) {
+                showMandalComplete();
+            }
+        }
+
+        function showMandalComplete() {
+            elements.activeMandalInfo.style.display = 'none';
+            elements.sessionHistory.style.display = 'none';
+            elements.mandalComplete.style.display = 'block';
+
+            const totalSessions = state.sessions.length;
+            const totalTime = state.sessions.reduce((sum, session) => sum + session.duration, 0);
+            const averageTime = totalSessions ? Math.round(totalTime / totalSessions) : 0;
+           const longestStreak = Math.max(...state.streaks.map(streak => streak.length), 0);
+
+            document.getElementById('summaryTotalSessions').textContent = totalSessions;
+            document.getElementById('summaryTotalTime').textContent = formatTime(totalTime);
+            document.getElementById('summaryAverageSession').textContent = formatTime(averageTime);
+            document.getElementById('summaryLongestStreak').textContent = longestStreak;
+
+            showToast(`Congratulations! You've completed your "${state.activeMandal.name}" Mandal!`);
+        }
+
+        function startNewMandal() {
+            state.activeMandal = null;
+            state.sessions = [];
+            state.streaks = [];
+            saveStateToLocalStorage();
+            updateUI();
+        }
+
+        function reviewDetailedProgress() {
+            // Implement detailed progress review here
+            showToast('Detailed progress review coming soon!');
+        }
+
+        function deleteMandal() {
+            state.activeMandal = null;
+            state.sessions = [];
+            state.streaks = [];
+            saveStateToLocalStorage();
+            updateUI();
+            showToast('Mandal deleted.');
+        }
+
+        function toggleTheme() {
+            document.body.classList.toggle('dark-mode');
+            showToast('Theme toggled.');
+        }
+
+        function formatDate(date) {
+            return new Date(date).toLocaleDateString();
+        }
+
+        function showToast(message) {
+            const toast = document.createElement('div');
+            toast.className = 'toast';
+            toast.textContent = message;
+            elements.toastContainer.appendChild(toast);
+            setTimeout(() => toast.classList.add('show'), 10);
+            setTimeout(() => {
+                toast.classList.remove('show');
+                setTimeout(() => toast.remove(), 300);
+            }, 3000);
+        }
+
+        function showIntrusiveToast(message, onConfirm) {
+            const toast = document.createElement('div');
+            toast.className = 'intrusive-toast';
+            toast.innerHTML = `
+                <p>${message}</p>
+                <div class="intrusive-toast-buttons">
+                    <button id="confirmBtn">Yes</button>
+                    <button id="cancelBtn">Cancel</button>
+                </div>
+            `;
+            document.body.appendChild(toast);
+
+            const confirmBtn = toast.querySelector('#confirmBtn');
+            const cancelBtn = toast.querySelector('#cancelBtn');
+
+            confirmBtn.addEventListener('click', () => {
+                onConfirm();
+                toast.remove();
+            });
+
+            cancelBtn.addEventListener('click', () => {
+                toast.remove();
+            });
+        }
+
+        function saveStateToLocalStorage() {
+            localStorage.setItem('meditationTrackerState', JSON.stringify(state));
+        }
+
+        function loadStateFromLocalStorage() {
+            const savedState = JSON.parse(localStorage.getItem('meditationTrackerState'));
+            if (savedState) {
+                state = {
+                    ...savedState,
+                    activeMandal: savedState.activeMandal ? {
+                        ...savedState.activeMandal,
+                        startDate: new Date(savedState.activeMandal.startDate),
+                        endDate: new Date(savedState.activeMandal.endDate)
+                    } : null,
+                    sessions: savedState.sessions.map(session => ({
+                        ...session,
+                        date: new Date(session.date)
+                    })),
+                    streaks: savedState.streaks ? savedState.streaks.map(streak => ({
+                        ...streak,
+                        start: new Date(streak.start),
+                        end: new Date(streak.end)
+                    })) : [],
+                    timerInterval: null,
+                    seconds: 0
+                };
+            }
+        }
+
+        function exportData() {
+            const exportNotes = document.getElementById('exportNotes').checked;
+            const exportReadings = document.getElementById('exportReadings').checked;
+            let exportData = {};
+
+            if (exportNotes) {
+                exportData.notes = state.sessions.map(session => session.notes);
+            }
+
+            if (exportReadings) {
+                exportData.readings = {
+                    activeMandal: state.activeMandal,
+                    sessions: state.sessions.map(({ date, duration }) => ({ date, duration })),
+                    streaks: state.streaks
+                };
+            }
+
+            if (exportNotes) {
+                const htmlContent = generateHTMLExport(exportData.notes);
+                downloadFile(htmlContent, `${state.activeMandal.name}_meditation_notes.html`, 'text/html');
+            }
+
+            if (exportReadings) {
+                const jsonContent = JSON.stringify(exportData.readings, null, 2);
+                downloadFile(jsonContent, `${state.activeMandal.name}_meditation_readings.json`, 'application/json');
+            }
+
+            showToast('Data exported successfully.');
+        }
+
+        function generateHTMLExport(notes) {
+            return `
+                <!DOCTYPE html>
+                <html lang="en">
+                <head>
+                    <meta charset="UTF-8">
+                    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+                    <title>${state.activeMandal.name} - Meditation Notes</title>
+                    <style>
+                        body {
+                            font-family: Arial, sans-serif;
+                            line-height: 1.6;
+                            color: #333;
+                            max-width: 800px;
+                            margin: 0 auto;
+                            padding: 20px;
+                        }
+                        .notes-container {
+                            display: grid;
+                            grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+                            gap: 20px;
+                        }
+                        .note-card {
+                            background-color: #f9f9f9;
+                            border: 1px solid #ddd;
+                            border-radius: 5px;
+                            padding: 15px;
+                        }
+                        h1 {
+                            color: #4a90e2;
+                            text-align: center;
+                        }
+                    </style>
+                </head>
+                <body>
+                    <h1>${state.activeMandal.name} - Meditation Notes</h1>
+                    <div class="notes-container">
+                        ${notes.map((note, index) => `
+                            <div class="note-card">
+                                <h2>Session ${index + 1}</h2>
+                                <div>${note}</div>
+                            </div>
+                        `).join('')}
+                    </div>
+                </body>
+                </html>
+            `;
+        }
+
+        function downloadFile(content, fileName, contentType) {
+            const a = document.createElement("a");
+            const file = new Blob([content], { type: contentType });
+            a.href = URL.createObjectURL(file);
+            a.download = fileName;
+            a.click();
+        }
+
+        function importData(event) {
+            const file = event.target.files[0];
+            if (file) {
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    try {
+                        const importedData = JSON.parse(e.target.result);
+                        if (importedData.readings) {
+                            state.activeMandal = importedData.readings.activeMandal;
+                            state.sessions = importedData.readings.sessions.map(session => ({
+                                ...session,
+                                date: new Date(session.date),
+                                notes: ''
+                            }));
+                            state.streaks = importedData.readings.streaks.map(streak => ({
+                                ...streak,
+                                start: new Date(streak.start),
+                                end: new Date(streak.end)
+                            }));
+                        }
+                        if (importedData.notes) {
+                            importedData.notes.forEach((note, index) => {
+                                if (state.sessions[index]) {
+                                    state.sessions[index].notes = note;
+                                }
+                            });
+                        }
+                        saveStateToLocalStorage();
+                        updateUI();
+                        showToast('Data imported successfully.');
+                    } catch (error) {
+                        showToast('Error importing data. Please check the file format.');
+                    }
+                };
+                reader.readAsText(file);
+            }
+        }
+
+        function saveUserName() {
+            const newName = elements.userName.textContent.trim();
+            if (newName) {
+                localStorage.setItem('meditationTrackerUserName', newName);
+                showToast('User name updated.');
+            } else {
+                elements.userName.textContent = localStorage.getItem('meditationTrackerUserName') || 'Your Name';
+                showToast('User name cannot be empty.');
+            }
+        }
+
+        function saveMandalName() {
+            if (state.activeMandal) {
+                const newName = elements.activeMandalName.textContent.trim();
+                if (newName) {
+                    state.activeMandal.name = newName;
+                    saveStateToLocalStorage();
+                    showToast('Mandal name updated.');
+                } else {
+                    elements.activeMandalName.textContent = state.activeMandal.name;
+                    showToast('Mandal name cannot be empty.');
+                }
+            }
+        }
+
+        function showFeedbackForm() {
+            elements.feedbackForm.style.display = 'block';
+        }
+
+        function hideFeedbackForm() {
+            elements.feedbackForm.style.display = 'none';
+        }
+
+        function submitFeedback() {
+            const feedbackText = document.getElementById('feedbackText').value;
+            if (feedbackText.trim()) {
+                // Here you would typically send the feedback to a server
+                // For now, we'll just log it to the console
+                console.log('Feedback submitted:', feedbackText);
+                showToast('Thank you for your feedback!');
+                hideFeedbackForm();
+            } else {
+                showToast('Please enter your feedback before submitting.');
+            }
+        }
+
+        // Initialize the application
+        initializeApp();
+    </script>
+</body>
+</html>
